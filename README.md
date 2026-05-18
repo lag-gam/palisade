@@ -6,7 +6,7 @@ Palisade is a real-time monitoring and policy enforcement layer that sits betwee
 
 ## Why This Exists
 
-This project was inspired by [a viral Meta tweet](https://x.com) showing an AI agent autonomously spinning up infrastructure, writing code, and deploying services with zero human oversight. It was a striking example of how quickly agents can take consequential, irreversible actions without anyone checking. Palisade is our answer to that: a system that watches what agents do in real time and stops dangerous actions before they happen.
+This project was inspired by [a viral Meta tweet](https://x.com/summeryue0/status/2025774069124399363) showing an AI agent autonomously spinning up infrastructure, writing code, and deploying services with zero human oversight. It was a striking example of how quickly agents can take consequential, irreversible actions without anyone checking. Palisade is our answer to that: a system that watches what agents do in real time and stops dangerous actions before they happen.
 
 ## How It Works
 
