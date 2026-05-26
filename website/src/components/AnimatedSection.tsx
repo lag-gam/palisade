@@ -1,73 +1,89 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { ReactNode } from "react";
 
-interface AnimatedSectionProps {
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 32 },
+  visible: { opacity: 1, y: 0 },
+};
+
+const fadeIn: Variants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+};
+
+const scaleIn: Variants = {
+  hidden: { opacity: 0, scale: 0.96 },
+  visible: { opacity: 1, scale: 1 },
+};
+
+interface Props {
   children: ReactNode;
   className?: string;
   delay?: number;
+  variant?: "fadeUp" | "fadeIn" | "scaleIn";
 }
 
-export function AnimatedSection({
+const variants = { fadeUp, fadeIn, scaleIn };
+
+export function Animated({
   children,
   className = "",
   delay = 0,
-}: AnimatedSectionProps) {
+  variant = "fadeUp",
+}: Props) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{
-        duration: 0.7,
-        delay,
-        ease: [0.21, 0.47, 0.32, 0.98],
-      }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-export function AnimatedFadeIn({
-  children,
-  className = "",
-  delay = 0,
-}: AnimatedSectionProps) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{
-        duration: 0.8,
-        delay,
-        ease: "easeOut",
-      }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-export function AnimatedScale({
-  children,
-  className = "",
-  delay = 0,
-}: AnimatedSectionProps) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      whileInView={{ opacity: 1, scale: 1 }}
+      variants={variants[variant]}
+      initial="hidden"
+      whileInView="visible"
       viewport={{ once: true, margin: "-60px" }}
       transition={{
         duration: 0.6,
         delay,
-        ease: [0.21, 0.47, 0.32, 0.98],
+        ease: [0.25, 0.1, 0.25, 1],
       }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function StaggerContainer({
+  children,
+  className = "",
+  stagger = 0.08,
+}: {
+  children: ReactNode;
+  className?: string;
+  stagger?: number;
+}) {
+  return (
+    <motion.div
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ staggerChildren: stagger }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function StaggerChild({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      variants={fadeUp}
+      transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
       className={className}
     >
       {children}

@@ -1,92 +1,84 @@
 "use client";
 
-import { AnimatedSection, AnimatedFadeIn } from "./AnimatedSection";
+import { Animated } from "./AnimatedSection";
 
 const ROWS = [
   {
     label: "Policy Model",
-    clawbands: "Static rules: ALLOW / ASK / DENY per tool category",
-    palisade:
-      "Composite risk scoring (0-100) with 6+ rules, exfiltration pattern detection, session memory",
+    them: "Static rules: ALLOW / ASK / DENY per category",
+    us: "Composite risk scoring (0–100), 6 rules, exfiltration detection, session memory",
   },
   {
     label: "Interface",
-    clawbands: "Terminal prompts (TTY), JSONL audit logs",
-    palisade:
-      "Real-time 3-panel dashboard: live tool stream, risk breakdowns, approval flow",
+    them: "Terminal prompts, JSONL audit logs",
+    us: "Real-time 3-panel dashboard with WebSocket streaming",
   },
   {
     label: "Scope",
-    clawbands: "OpenClaw only",
-    palisade:
-      "Agent-agnostic: OpenClaw plugin, HTTP API for any agent, SDK adapters",
+    them: "OpenClaw only",
+    us: "Agent-agnostic: OpenClaw plugin, HTTP API, SDK adapters",
   },
   {
     label: "Memory",
-    clawbands: "None \u2014 each tool call evaluated in isolation",
-    palisade:
-      "Cross-action session memory \u2014 tracks sensitive file access across the full run",
+    them: "Each tool call evaluated in isolation",
+    us: "Cross-action session memory tracks sensitive file access",
   },
   {
     label: "Decisions",
-    clawbands: "Binary: allow or deny",
-    palisade:
-      "Three-tier: ALLOW, REQUIRE_APPROVAL (human-in-the-loop), BLOCK \u2014 with risk scores",
+    them: "Binary: allow or deny",
+    us: "Three-tier: ALLOW, REQUIRE_APPROVAL, BLOCK — with risk scores",
   },
 ];
 
 export function Comparison() {
   return (
-    <section className="relative py-32 px-6">
-      <div className="section-divider mb-32" />
-
-      <div className="relative z-10 mx-auto max-w-5xl">
-        <AnimatedSection className="text-center mb-16">
-          <p className="text-sm font-medium text-accent mb-3 tracking-wider uppercase">
-            How we compare
+    <section className="py-24 px-6 bg-[#fafafa]">
+      <div className="mx-auto max-w-4xl">
+        <Animated className="text-center mb-14">
+          <p className="text-[13px] font-medium text-[#16a34a] tracking-wide uppercase mb-2">
+            Comparison
           </p>
-          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
-            ClawBands vs <span className="text-gradient">Palisade</span>
+          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#0a0a0a]">
+            ClawBands vs Palisade
           </h2>
-          <p className="mx-auto max-w-xl text-lg text-[#9ca3af]">
-            Different product category entirely: CLI tool vs. platform.
+          <p className="mt-3 text-[15px] text-[#737373]">
+            Different product category: CLI tool vs. platform.
           </p>
-        </AnimatedSection>
+        </Animated>
 
-        <AnimatedFadeIn delay={0.1}>
-          <div className="glass-card overflow-hidden">
-            {/* Table header */}
-            <div className="grid grid-cols-[1fr_1fr_1fr] border-b border-white/5">
-              <div className="p-5 text-sm font-medium text-[#6b7280]" />
-              <div className="p-5 text-sm font-semibold text-[#9ca3af] border-l border-white/5">
+        <Animated delay={0.1}>
+          <div className="overflow-hidden rounded-2xl border border-[#e5e5e5] bg-white">
+            {/* Header */}
+            <div className="grid grid-cols-[140px_1fr_1fr] sm:grid-cols-[180px_1fr_1fr] border-b border-[#e5e5e5] bg-[#fafafa]">
+              <div className="p-4" />
+              <div className="p-4 text-[13px] font-semibold text-[#a3a3a3] border-l border-[#e5e5e5]">
                 ClawBands
               </div>
-              <div className="p-5 text-sm font-semibold text-accent border-l border-white/5">
+              <div className="p-4 text-[13px] font-semibold text-[#16a34a] border-l border-[#e5e5e5]">
                 Palisade
               </div>
             </div>
 
-            {/* Rows */}
-            {ROWS.map((row, i) => (
+            {ROWS.map((r, i) => (
               <div
-                key={row.label}
-                className={`grid grid-cols-[1fr_1fr_1fr] ${
-                  i < ROWS.length - 1 ? "border-b border-white/5" : ""
+                key={r.label}
+                className={`grid grid-cols-[140px_1fr_1fr] sm:grid-cols-[180px_1fr_1fr] ${
+                  i < ROWS.length - 1 ? "border-b border-[#e5e5e5]" : ""
                 }`}
               >
-                <div className="p-5 text-sm font-medium text-white">
-                  {row.label}
+                <div className="p-4 text-[13px] font-medium text-[#0a0a0a]">
+                  {r.label}
                 </div>
-                <div className="p-5 text-sm text-[#6b7280] border-l border-white/5 leading-relaxed">
-                  {row.clawbands}
+                <div className="p-4 text-[13px] text-[#a3a3a3] border-l border-[#e5e5e5] leading-relaxed">
+                  {r.them}
                 </div>
-                <div className="p-5 text-sm text-[#d1d5db] border-l border-white/5 leading-relaxed bg-accent/[0.02]">
-                  {row.palisade}
+                <div className="p-4 text-[13px] text-[#525252] border-l border-[#e5e5e5] leading-relaxed">
+                  {r.us}
                 </div>
               </div>
             ))}
           </div>
-        </AnimatedFadeIn>
+        </Animated>
       </div>
     </section>
   );

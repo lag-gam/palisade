@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -16,12 +17,6 @@ export const metadata: Metadata = {
   title: "Palisade — Runtime Intelligence for AI Agents",
   description:
     "The security layer between AI agents and the real world. Risk-scored decisions, pattern detection, cross-action memory, and visual audit trail.",
-  openGraph: {
-    title: "Palisade — Runtime Intelligence for AI Agents",
-    description:
-      "The security layer between AI agents and the real world.",
-    type: "website",
-  },
 };
 
 export default function RootLayout({
@@ -30,13 +25,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col bg-[#050508] text-[#f0f0f5]">
-        {children}
-      </body>
+    <html lang="en" className={`${inter.variable} ${geistMono.variable}`}>
+      <body>{children}</body>
     </html>
   );
 }

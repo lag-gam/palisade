@@ -2,268 +2,174 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { AnimatedSection } from "./AnimatedSection";
+import { Animated } from "./AnimatedSection";
 
 const TABS = [
   {
     id: "quickstart",
     label: "Quick Start",
-    content: `# Quick Start
-
-## 1. Install the OpenClaw plugin
-
-\`\`\`bash
-npm install palisade-openclaw
-\`\`\`
-
-## 2. Add to your openclaw.json
-
-\`\`\`json
-{
-  "plugins": ["palisade-openclaw"]
-}
-\`\`\`
-
-## 3. Start the Palisade worker + dashboard
-
-\`\`\`bash
-cd palisade && npm run dev:no-agent
-\`\`\`
-
-## 4. Run OpenClaw — Palisade intercepts every tool call
-
-\`\`\`bash
-PALISADE_URL=http://localhost:8787 openclaw run
-\`\`\`
-
-That's it. Open the dashboard at localhost:5173
-and watch decisions stream in.`,
+    lines: [
+      { type: "comment", text: "# Install the OpenClaw plugin" },
+      { type: "cmd", text: "npm install palisade-openclaw" },
+      { type: "blank" },
+      { type: "comment", text: "# Add to openclaw.json" },
+      { type: "code", text: '{ "plugins": ["palisade-openclaw"] }' },
+      { type: "blank" },
+      { type: "comment", text: "# Start Palisade" },
+      { type: "cmd", text: "cd palisade && npm run dev:no-agent" },
+      { type: "blank" },
+      { type: "comment", text: "# Run OpenClaw — Palisade intercepts every tool call" },
+      { type: "cmd", text: "PALISADE_URL=http://localhost:8787 openclaw run" },
+      { type: "blank" },
+      { type: "comment", text: "# Open the dashboard at localhost:5173" },
+    ],
   },
   {
-    id: "http-api",
+    id: "http",
     label: "HTTP API",
-    content: `# Universal HTTP API
-
-Any agent that can make HTTP calls can integrate.
-
-## Create a session
-
-\`\`\`bash
-curl -X POST http://localhost:8787/api/sessions \\
-  -H "Content-Type: application/json" \\
-  -d '{"source": "my-agent"}'
-# → { "id": "abc-123", ... }
-\`\`\`
-
-## Evaluate a tool call
-
-\`\`\`bash
-curl -X POST http://localhost:8787/api/sessions/abc-123/evaluate \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "toolName": "send_email",
-    "toolArgs": {"to": "x@y.com", "body": "data"},
-    "agentReasoning": "sending report",
-    "stepIndex": 0
-  }'
-# → { "decision": "BLOCK", "riskScore": 60, ... }
-\`\`\`
-
-## Poll for approval
-
-\`\`\`bash
-curl http://localhost:8787/api/sessions/abc-123/approval-status/tc-xyz
-# → { "status": "pending" | "approved" | "denied" }
-\`\`\`
-
-## Report tool result
-
-\`\`\`bash
-curl -X POST http://localhost:8787/api/sessions/abc-123/tool-result \\
-  -d '{"toolCallId": "tc-xyz", "result": "done"}'
-\`\`\`
-
-## Mark session complete
-
-\`\`\`bash
-curl -X POST http://localhost:8787/api/sessions/abc-123/agent-done
-\`\`\``,
+    lines: [
+      { type: "comment", text: "# Create a session" },
+      { type: "cmd", text: "curl -X POST localhost:8787/api/sessions \\" },
+      { type: "cont", text: '  -d \'{"source": "my-agent"}\'' },
+      { type: "blank" },
+      { type: "comment", text: "# Evaluate a tool call" },
+      { type: "cmd", text: "curl -X POST localhost:8787/api/sessions/$SID/evaluate \\" },
+      { type: "cont", text: '  -d \'{"toolName":"send_email","toolArgs":{"to":"x@y.com"},...}\'' },
+      { type: "blank" },
+      { type: "comment", text: "# Poll for approval (if REQUIRE_APPROVAL)" },
+      { type: "cmd", text: "curl localhost:8787/api/sessions/$SID/approval-status/$TID" },
+      { type: "blank" },
+      { type: "comment", text: "# Report result + mark done" },
+      { type: "cmd", text: 'curl -X POST .../tool-result -d \'{"toolCallId":"...","result":"ok"}\'' },
+      { type: "cmd", text: "curl -X POST .../agent-done" },
+    ],
   },
   {
-    id: "policy",
+    id: "rules",
     label: "Policy Rules",
-    content: `# Policy Engine
-
-Six rules fire on every tool call, each contributing a
-weighted risk score. The composite score drives the decision.
-
-## Risk Score Thresholds
-
-| Score   | Decision          |
-|---------|-------------------|
-| < 30    | ALLOW             |
-| 30 – 59 | REQUIRE_APPROVAL |
-| >= 60   | BLOCK             |
-
-## Rules
-
-### isDestructive (risk: 40)
-Detects delete, rm, drop, destroy, truncate, and dangerous
-shell patterns like \`rm -rf\`, \`dd if=\`, \`mkfs\`.
-
-### isBulkAction (risk: 25)
-Catches _bulk/_all/batch tools, count > 10, SELECT *,
-and large ID lists (> 10 items).
-
-### touchesSensitiveData (risk: 30)
-PII (SSN, credit cards), medical (HIPAA keywords),
-financial (account numbers, wire transfers),
-and sensitive file names.
-
-### affectsExternalSystem (risk: 15-30)
-send_email (30), post_webhook (25), upload_file (20),
-post_slack (20), publish (25), external URLs (15).
-
-### lacksRecentApproval (risk: 0)
-Modifier flag — notes when no approvals exist in session.
-
-### stopCommandActive (risk: 100)
-User issued stop — instant max risk, blocks everything.
-
-## Priority Overrides
-
-1. Stop command → BLOCK (regardless of score)
-2. Read-only + no sensitive data → ALLOW (cap score to 10)
-3. Destructive + bulk → BLOCK (pattern match)
-4. Sensitive + external → BLOCK (exfiltration)
-5. Fall through to score thresholds`,
+    lines: [
+      { type: "comment", text: "# 6 rules fire on every tool call" },
+      { type: "blank" },
+      { type: "rule", text: "isDestructive        risk: 40   rm -rf, DROP TABLE, delete" },
+      { type: "rule", text: "isBulkAction         risk: 25   batch ops, SELECT *, count > 10" },
+      { type: "rule", text: "touchesSensitiveData risk: 30   PII, medical, financial, credentials" },
+      { type: "rule", text: "affectsExternalSystem risk: 15-30 email, slack, webhooks, uploads" },
+      { type: "rule", text: "lacksRecentApproval  risk: 0    modifier flag, no risk on its own" },
+      { type: "rule", text: "stopCommandActive    risk: 100  user stop → blocks everything" },
+      { type: "blank" },
+      { type: "comment", text: "# Decision thresholds" },
+      { type: "threshold", value: "< 30", label: "ALLOW", color: "#16a34a" },
+      { type: "threshold", value: "30–59", label: "REQUIRE_APPROVAL", color: "#d97706" },
+      { type: "threshold", value: "≥ 60", label: "BLOCK", color: "#dc2626" },
+    ],
   },
 ];
 
-function CodeBlock({ content }: { content: string }) {
-  const lines = content.split("\n");
-  return (
-    <div className="space-y-1 text-sm font-mono leading-relaxed">
-      {lines.map((line, i) => {
-        if (line.startsWith("# ")) {
-          return (
-            <h2 key={i} className="text-xl font-sans font-bold text-white mt-6 mb-3 first:mt-0">
-              {line.replace("# ", "")}
-            </h2>
-          );
-        }
-        if (line.startsWith("## ")) {
-          return (
-            <h3 key={i} className="text-base font-sans font-semibold text-[#d1d5db] mt-5 mb-2">
-              {line.replace("## ", "")}
-            </h3>
-          );
-        }
-        if (line.startsWith("### ")) {
-          return (
-            <h4 key={i} className="text-sm font-sans font-semibold text-accent mt-4 mb-1">
-              {line.replace("### ", "")}
-            </h4>
-          );
-        }
-        if (line.startsWith("```")) {
-          return null;
-        }
-        if (line.startsWith("|")) {
-          const cells = line.split("|").filter(Boolean).map((c) => c.trim());
-          if (cells.every((c) => c.match(/^[-]+$/))) return null;
-          return (
-            <div key={i} className="flex gap-4 text-xs py-1">
-              {cells.map((cell, j) => (
-                <span
-                  key={j}
-                  className={j === 0 ? "w-20 text-[#fbbf24]" : "flex-1 text-[#9ca3af]"}
-                >
-                  {cell}
-                </span>
-              ))}
-            </div>
-          );
-        }
-        if (line.trim() === "") {
-          return <div key={i} className="h-2" />;
-        }
-        // Inline code
-        const parts = line.split(/(`[^`]+`)/);
-        return (
-          <div key={i} className="text-[#9ca3af] font-sans text-sm leading-relaxed">
-            {parts.map((part, j) =>
-              part.startsWith("`") && part.endsWith("`") ? (
-                <code
-                  key={j}
-                  className="text-accent bg-accent/10 px-1.5 py-0.5 rounded text-xs font-mono"
-                >
-                  {part.slice(1, -1)}
-                </code>
-              ) : (
-                <span key={j}>{part}</span>
-              )
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
+type Line = (typeof TABS)[number]["lines"][number];
+
+function TermLine({ line }: { line: Line }) {
+  switch (line.type) {
+    case "blank":
+      return <div className="h-3" />;
+    case "comment":
+      return <p className="text-[#a3a3a3]">{line.text}</p>;
+    case "cmd":
+      return (
+        <p>
+          <span className="text-[#16a34a]">$</span>{" "}
+          <span className="text-[#0a0a0a]">{line.text}</span>
+        </p>
+      );
+    case "cont":
+      return <p className="text-[#737373] pl-4">{line.text}</p>;
+    case "code":
+      return <p className="text-[#2563eb] pl-4">{line.text}</p>;
+    case "rule":
+      return (
+        <p className="text-[#525252]">
+          <span className="text-[#0a0a0a] font-medium inline-block w-[200px]">
+            {line.text!.split(/\s{2,}/)[0]}
+          </span>
+          <span className="text-[#d97706] inline-block w-[80px]">
+            {line.text!.split(/\s{2,}/)[1]}
+          </span>
+          <span className="text-[#a3a3a3]">
+            {line.text!.split(/\s{2,}/)[2]}
+          </span>
+        </p>
+      );
+    case "threshold": {
+      const l = line as Line & { value: string; label: string; color: string };
+      return (
+        <p className="flex items-center gap-3 pl-4">
+          <span className="text-[#0a0a0a] font-mono w-14">{l.value}</span>
+          <span
+            className="rounded px-2 py-0.5 text-[11px] font-semibold"
+            style={{
+              color: l.color,
+              background: `${l.color}10`,
+              border: `1px solid ${l.color}30`,
+            }}
+          >
+            {l.label}
+          </span>
+        </p>
+      );
+    }
+    default:
+      return null;
+  }
 }
 
 export function Docs() {
-  const [activeTab, setActiveTab] = useState("quickstart");
-  const activeContent = TABS.find((t) => t.id === activeTab)!;
+  const [active, setActive] = useState("quickstart");
+  const tab = TABS.find((t) => t.id === active)!;
 
   return (
-    <section id="docs" className="relative py-32 px-6">
-      <div className="section-divider mb-32" />
-
-      <div className="relative z-10 mx-auto max-w-4xl">
-        <AnimatedSection className="text-center mb-16">
-          <p className="text-sm font-medium text-accent mb-3 tracking-wider uppercase">
+    <section id="docs" className="py-24 px-6 bg-[#fafafa]">
+      <div className="mx-auto max-w-3xl">
+        <Animated className="text-center mb-14">
+          <p className="text-[13px] font-medium text-[#16a34a] tracking-wide uppercase mb-2">
             Documentation
           </p>
-          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
-            Integrate in <span className="text-gradient">30 seconds</span>
+          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#0a0a0a]">
+            Integrate in 30 seconds
           </h2>
-          <p className="mx-auto max-w-xl text-lg text-[#9ca3af]">
-            Zero runtime dependencies. Just HTTP calls to the Palisade worker.
+          <p className="mt-3 text-[15px] text-[#737373]">
+            Zero runtime dependencies. Just HTTP calls.
           </p>
-        </AnimatedSection>
+        </Animated>
 
-        <AnimatedSection delay={0.1}>
-          <div className="glass-card overflow-hidden">
-            {/* macOS title bar */}
-            <div className="flex items-center gap-2 px-5 py-3 bg-black/30 border-b border-white/5">
+        <Animated delay={0.1}>
+          <div className="overflow-hidden rounded-2xl border border-[#e5e5e5] bg-white shadow-sm">
+            {/* Title bar */}
+            <div className="flex items-center gap-2 border-b border-[#e5e5e5] bg-[#fafafa] px-4 py-2.5">
               <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
-                <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
-                <div className="w-3 h-3 rounded-full bg-[#28c840]" />
+                <span className="h-3 w-3 rounded-full bg-[#ff5f57]" />
+                <span className="h-3 w-3 rounded-full bg-[#febc2e]" />
+                <span className="h-3 w-3 rounded-full bg-[#28c840]" />
               </div>
-              <span className="ml-3 text-xs text-[#6b7280] font-mono">
-                docs &mdash; palisade
+              <span className="ml-2 text-[11px] font-mono text-[#a3a3a3]">
+                docs
               </span>
             </div>
 
             {/* Tabs */}
-            <div className="flex border-b border-white/5">
-              {TABS.map((tab) => (
+            <div className="flex border-b border-[#e5e5e5]">
+              {TABS.map((t) => (
                 <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`px-5 py-3 text-sm font-medium transition-all relative ${
-                    activeTab === tab.id
-                      ? "text-white"
-                      : "text-[#6b7280] hover:text-[#9ca3af]"
+                  key={t.id}
+                  onClick={() => setActive(t.id)}
+                  className={`relative px-5 py-2.5 text-[13px] font-medium transition-colors ${
+                    active === t.id ? "text-[#0a0a0a]" : "text-[#a3a3a3] hover:text-[#737373]"
                   }`}
                 >
-                  {tab.label}
-                  {activeTab === tab.id && (
+                  {t.label}
+                  {active === t.id && (
                     <motion.div
-                      layoutId="docs-tab-indicator"
-                      className="absolute bottom-0 left-0 right-0 h-[2px] bg-accent"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
+                      layoutId="tab"
+                      className="absolute inset-x-0 bottom-0 h-[2px] bg-[#16a34a]"
+                      transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
                     />
                   )}
                 </button>
@@ -271,21 +177,24 @@ export function Docs() {
             </div>
 
             {/* Content */}
-            <div className="p-8 min-h-[400px]">
+            <div className="p-6 min-h-[320px]">
               <AnimatePresence mode="wait">
                 <motion.div
-                  key={activeTab}
-                  initial={{ opacity: 0, y: 10 }}
+                  key={active}
+                  initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.25 }}
+                  className="font-mono text-[13px] leading-[1.8] space-y-0.5"
                 >
-                  <CodeBlock content={activeContent.content} />
+                  {tab.lines.map((line, i) => (
+                    <TermLine key={i} line={line} />
+                  ))}
                 </motion.div>
               </AnimatePresence>
             </div>
           </div>
-        </AnimatedSection>
+        </Animated>
       </div>
     </section>
   );

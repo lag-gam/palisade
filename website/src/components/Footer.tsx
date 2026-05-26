@@ -1,39 +1,34 @@
-"use client";
-
 export function Footer() {
   return (
-    <footer className="relative border-t border-white/5 py-12 px-6">
-      <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent/10 border border-accent/20">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-accent"
-            >
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
-          </div>
-          <span className="text-sm font-semibold text-[#9ca3af]">Palisade</span>
+    <footer className="border-t border-[#e5e5e5] py-10 px-6">
+      <div className="mx-auto flex max-w-5xl flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#16a34a"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          <span className="text-[13px] font-semibold text-[#737373]">Palisade</span>
         </div>
 
-        <div className="flex items-center gap-6 text-xs text-[#4b5563]">
-          <a href="#features" className="hover:text-[#9ca3af] transition-colors">Features</a>
-          <a href="#docs" className="hover:text-[#9ca3af] transition-colors">Docs</a>
-          <a href="#contact" className="hover:text-[#9ca3af] transition-colors">Contact</a>
-          <span className="text-[#374151]">|</span>
-          <span>Built for CS 153 @ Stanford (AI COACHELLA)</span>
+        <div className="flex items-center gap-5 text-[12px] text-[#a3a3a3]">
+          <a href="#features" className="hover:text-[#0a0a0a] transition-colors">Features</a>
+          <a href="#docs" className="hover:text-[#0a0a0a] transition-colors">Docs</a>
+          <a href="#contact" className="hover:text-[#0a0a0a] transition-colors">Contact</a>
+          <span className="text-[#e5e5e5]">|</span>
+          <span>CS 153 @ Stanford (AI COACHELLA)</span>
         </div>
 
-        <div className="text-xs text-[#374151]">
+        <span className="text-[12px] text-[#d4d4d4]">
           &copy; {new Date().getFullYear()} Palisade
-        </div>
+        </span>
       </div>
     </footer>
   );

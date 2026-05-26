@@ -2,76 +2,65 @@
 
 import { useState, FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { AnimatedSection } from "./AnimatedSection";
+import { Animated } from "./AnimatedSection";
 
 export function Waitlist() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const [message, setMessage] = useState("");
+  const [msg, setMsg] = useState("");
 
-  const handleSubmit = async (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
-
     setStatus("loading");
-
     try {
       const res = await fetch("/api/waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim() }),
       });
-
       const data = await res.json();
-
       if (res.ok) {
         setStatus("success");
-        setMessage(data.message || "You're on the list!");
+        setMsg(data.message || "You're on the list!");
         setEmail("");
       } else {
         setStatus("error");
-        setMessage(data.error || "Something went wrong.");
+        setMsg(data.error || "Something went wrong.");
       }
     } catch {
       setStatus("error");
-      setMessage("Network error. Please try again.");
+      setMsg("Network error. Try again.");
     }
   };
 
   return (
-    <section id="waitlist" className="relative py-32 px-6">
-      <div className="section-divider mb-32" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-accent/5 blur-[120px]" />
-
-      <div className="relative z-10 mx-auto max-w-2xl text-center">
-        <AnimatedSection>
-          <p className="text-sm font-medium text-accent mb-3 tracking-wider uppercase">
+    <section id="waitlist" className="py-24 px-6">
+      <div className="mx-auto max-w-lg text-center">
+        <Animated>
+          <p className="text-[13px] font-medium text-[#16a34a] tracking-wide uppercase mb-2">
             Early Access
           </p>
-          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
-            Get on the <span className="text-gradient">waitlist</span>
+          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#0a0a0a] mb-3">
+            Get on the waitlist
           </h2>
-          <p className="text-lg text-[#9ca3af] mb-10">
-            Be among the first to try Palisade when we launch the hosted
-            platform. Open-source self-hosted is available now.
+          <p className="text-[15px] text-[#737373] mb-8">
+            Be the first to try hosted Palisade. Self-hosted open-source is available now.
           </p>
 
-          <form
-            onSubmit={handleSubmit}
-            className="mx-auto max-w-md flex flex-col sm:flex-row gap-3"
-          >
+          <form onSubmit={submit} className="flex flex-col sm:flex-row gap-2.5">
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@company.com"
               required
-              className="flex-1 px-5 py-3.5 rounded-full glass text-sm text-white placeholder:text-[#6b7280] outline-none focus:border-accent/40 transition-colors"
+              className="flex-1 rounded-full border border-[#e5e5e5] bg-white px-5 py-2.5 text-[14px] text-[#0a0a0a] placeholder:text-[#a3a3a3] outline-none focus:border-[#16a34a] transition-colors"
             />
             <button
               type="submit"
               disabled={status === "loading"}
-              className="px-8 py-3.5 rounded-full bg-accent text-sm font-semibold text-black hover:bg-accent/90 transition-all shadow-lg shadow-accent/20 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              className="rounded-full bg-[#0a0a0a] px-6 py-2.5 text-[14px] font-medium text-white transition-opacity hover:opacity-80 disabled:opacity-50 whitespace-nowrap"
             >
               {status === "loading" ? "Joining..." : "Join Waitlist"}
             </button>
@@ -80,25 +69,28 @@ export function Waitlist() {
           <AnimatePresence>
             {(status === "success" || status === "error") && (
               <motion.p
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className={`mt-4 text-sm ${
-                  status === "success" ? "text-accent" : "text-red-400"
+                className={`mt-3 text-[13px] ${
+                  status === "success" ? "text-[#16a34a]" : "text-[#dc2626]"
                 }`}
               >
-                {message}
+                {msg}
               </motion.p>
             )}
           </AnimatePresence>
 
-          <p className="mt-6 text-xs text-[#4b5563]">
-            No spam. Unsubscribe anytime. Open source at{" "}
-            <a href="#" className="text-[#6b7280] hover:text-white transition-colors underline underline-offset-2">
-              github.com/palisade
+          <p className="mt-5 text-[12px] text-[#a3a3a3]">
+            No spam. Open source at{" "}
+            <a
+              href="https://github.com/lag-gam/palisade"
+              className="text-[#737373] underline underline-offset-2 hover:text-[#0a0a0a] transition-colors"
+            >
+              github.com/lag-gam/palisade
             </a>
           </p>
-        </AnimatedSection>
+        </Animated>
       </div>
     </section>
   );
