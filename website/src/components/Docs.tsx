@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Animated } from "./AnimatedSection";
+import { Animated, SectionReveal } from "./AnimatedSection";
 
 const TABS = [
   {
@@ -59,8 +59,8 @@ const TABS = [
       { type: "blank" },
       { type: "comment", text: "# Decision thresholds" },
       { type: "threshold", value: "< 30", label: "ALLOW", color: "#16a34a" },
-      { type: "threshold", value: "30–59", label: "REQUIRE_APPROVAL", color: "#d97706" },
-      { type: "threshold", value: "≥ 60", label: "BLOCK", color: "#dc2626" },
+      { type: "threshold", value: "30-59", label: "REQUIRE_APPROVAL", color: "#d97706" },
+      { type: "threshold", value: ">= 60", label: "BLOCK", color: "#dc2626" },
     ],
   },
 ];
@@ -140,7 +140,7 @@ export function Docs() {
           </p>
         </Animated>
 
-        <Animated delay={0.1}>
+        <SectionReveal>
           <div className="overflow-hidden rounded-2xl border border-[#e5e5e5] bg-white shadow-sm">
             {/* Title bar */}
             <div className="flex items-center gap-2 border-b border-[#e5e5e5] bg-[#fafafa] px-4 py-2.5">
@@ -181,10 +181,10 @@ export function Docs() {
               <AnimatePresence mode="wait">
                 <motion.div
                   key={active}
-                  initial={{ opacity: 0, y: 8 }}
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.25 }}
+                  exit={{ opacity: 0, y: -12 }}
+                  transition={{ duration: 0.3 }}
                   className="font-mono text-[13px] leading-[1.8] space-y-0.5"
                 >
                   {tab.lines.map((line, i) => (
@@ -194,7 +194,7 @@ export function Docs() {
               </AnimatePresence>
             </div>
           </div>
-        </Animated>
+        </SectionReveal>
       </div>
     </section>
   );

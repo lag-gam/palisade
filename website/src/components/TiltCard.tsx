@@ -14,13 +14,13 @@ export function TiltCard({
   const x = useMotionValue(0.5);
   const y = useMotionValue(0.5);
 
-  const rotateX = useSpring(useTransform(y, [0, 1], [4, -4]), {
-    stiffness: 300,
-    damping: 30,
+  const rotateX = useSpring(useTransform(y, [0, 1], [8, -8]), {
+    stiffness: 200,
+    damping: 25,
   });
-  const rotateY = useSpring(useTransform(x, [0, 1], [-4, 4]), {
-    stiffness: 300,
-    damping: 30,
+  const rotateY = useSpring(useTransform(x, [0, 1], [-8, 8]), {
+    stiffness: 200,
+    damping: 25,
   });
 
   const handleMouse = (e: React.MouseEvent) => {
@@ -44,7 +44,7 @@ export function TiltCard({
       style={{
         rotateX,
         rotateY,
-        transformPerspective: 800,
+        transformPerspective: 600,
       }}
       className={className}
     >

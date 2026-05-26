@@ -16,17 +16,17 @@ export default function Home() {
       <ScrollProgress />
       <Navbar />
       <Hero />
-      <AnimatedDivider className="py-2" />
+      <AnimatedDivider className="py-4" />
       <Features />
-      <AnimatedDivider className="py-2" />
+      <AnimatedDivider className="py-4" />
       <Comparison />
-      <AnimatedDivider className="py-2" />
+      <AnimatedDivider className="py-4" />
       <Metrics />
-      <AnimatedDivider className="py-2" />
+      <AnimatedDivider className="py-4" />
       <Docs />
-      <AnimatedDivider className="py-2" />
+      <AnimatedDivider className="py-4" />
       <Waitlist />
-      <AnimatedDivider className="py-2" />
+      <AnimatedDivider className="py-4" />
       <Contact />
       <Footer />
     </main>

@@ -105,20 +105,19 @@ export function TextReveal({
   return (
     <motion.span
       initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-40px" }}
+      animate="visible"
       className={className}
     >
       {words.map((word, i) => (
         <motion.span
           key={i}
           variants={{
-            hidden: { opacity: 0, y: 12, filter: "blur(4px)" },
+            hidden: { opacity: 0, y: 20, filter: "blur(8px)" },
             visible: { opacity: 1, y: 0, filter: "blur(0px)" },
           }}
           transition={{
-            duration: 0.4,
-            delay: delay + i * 0.04,
+            duration: 0.5,
+            delay: delay + i * 0.06,
             ease: [0.25, 0.1, 0.25, 1],
           }}
           className="inline-block mr-[0.3em]"
@@ -154,17 +153,44 @@ export function Parallax({
   );
 }
 
-/** Horizontal line that animates width on scroll */
+/** Horizontal gradient line that animates width on scroll */
 export function AnimatedDivider({ className = "" }: { className?: string }) {
   return (
     <div className={`flex justify-center ${className}`}>
       <motion.div
         initial={{ width: 0, opacity: 0 }}
-        whileInView={{ width: 80, opacity: 1 }}
+        whileInView={{ width: 120, opacity: 1 }}
         viewport={{ once: true, margin: "-20px" }}
-        transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
-        className="h-[1px] bg-[#e5e5e5]"
+        transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
+        className="h-[1.5px]"
+        style={{
+          background: "linear-gradient(90deg, transparent, #16a34a40, transparent)",
+        }}
       />
     </div>
+  );
+}
+
+/** Section reveal — slides up with scale on scroll */
+export function SectionReveal({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 60, scale: 0.97 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{
+        duration: 0.8,
+        ease: [0.25, 0.1, 0.25, 1],
+      }}
+      className={className}
+    >
+      {children}
+    </motion.div>
   );
 }

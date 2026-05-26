@@ -1,12 +1,12 @@
 "use client";
 
-import { Animated } from "./AnimatedSection";
+import { Animated, SectionReveal } from "./AnimatedSection";
 
 const ROWS = [
   {
     label: "Policy Model",
     them: "Static rules: ALLOW / ASK / DENY per category",
-    us: "Composite risk scoring (0–100), 6 rules, exfiltration detection, session memory",
+    us: "Composite risk scoring (0-100), 6 rules, exfiltration detection, session memory",
   },
   {
     label: "Interface",
@@ -46,8 +46,8 @@ export function Comparison() {
           </p>
         </Animated>
 
-        <Animated delay={0.1}>
-          <div className="overflow-hidden rounded-2xl border border-[#e5e5e5] bg-white">
+        <SectionReveal>
+          <div className="overflow-hidden rounded-2xl border border-[#e5e5e5] bg-white shadow-sm">
             {/* Header */}
             <div className="grid grid-cols-[140px_1fr_1fr] sm:grid-cols-[180px_1fr_1fr] border-b border-[#e5e5e5] bg-[#fafafa]">
               <div className="p-4" />
@@ -78,7 +78,7 @@ export function Comparison() {
               </div>
             ))}
           </div>
-        </Animated>
+        </SectionReveal>
       </div>
     </section>
   );
