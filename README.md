@@ -1,47 +1,117 @@
 # Palisade
 
-**Runtime Guardrails for AI Agents**
+**Runtime Intelligence for AI Agents**
 
-Palisade is a real-time monitoring and policy enforcement layer that sits between an AI agent and the tools it can access. Every action the agent tries to take — reading a file, running a shell command, sending an email — passes through Palisade's policy engine before it's allowed to execute.
+Palisade is an agent-agnostic security layer that intercepts tool calls from any autonomous AI agent, evaluates them against a composite risk-scoring policy engine, and either allows, blocks, or escalates them for human approval — all visible in a real-time dashboard.
+
+It works with **any agent** that can make HTTP calls. Ship it as an OpenClaw plugin, point Hermes at it, or integrate from a custom agent with a single POST request.
 
 ## Why This Exists
 
-This project was inspired by [a viral Meta tweet](https://x.com/summeryue0/status/2025774069124399363) showing an AI agent autonomously spinning up infrastructure, writing code, and deploying services with zero human oversight. It was a striking example of how quickly agents can take consequential, irreversible actions without anyone checking. Palisade is our answer to that: a system that watches what agents do in real time and stops dangerous actions before they happen.
+This project was inspired by [a viral Meta tweet](https://x.com/summeryue0/status/2025774069124399363) showing an AI agent autonomously spinning up infrastructure, writing code, and deploying services with zero human oversight. Agents can take consequential, irreversible actions without anyone checking. Palisade is the thing that stops them.
 
 ## How It Works
 
 ```
-┌──────────────┐       ┌──────────────────┐       ┌──────────────┐
-│   Frontend   │◄─────►│  Policy Engine    │◄─────►│ Agent Server │
-│  (React UI)  │  WS   │ (Cloudflare Worker)│ HTTP │  (Claude AI) │
-└──────────────┘       └──────────────────┘       └──────────────┘
+                          ┌──────────────────┐
+                          │  Palisade Worker  │
+                          │  (Policy Engine)  │
+                          └───────┬──────────┘
+                                  │ HTTP API
+              ┌───────────────────┼───────────────────┐
+              │                   │                   │
+   ┌──────────▼───┐    ┌─────────▼────┐    ┌────────▼────────┐
+   │   OpenClaw   │    │    Hermes    │    │  Any Agent via  │
+   │   (plugin)   │    │   (HTTP)     │    │    HTTP API     │
+   └──────────────┘    └──────────────┘    └─────────────────┘
+              │
+   ┌──────────▼───┐
+   │   Frontend   │  ← Real-time dashboard (WebSocket)
+   │  (React UI)  │
+   └──────────────┘
 ```
 
-1. The **Agent Server** runs a Claude-powered agent that can call tools (read/write files, execute shell commands, send emails)
-2. Before any tool executes, the **Policy Engine** evaluates it against a set of rules and assigns a risk score
-3. Based on the score, the action is either **allowed**, **blocked**, or **flagged for human approval**
-4. The **Frontend** shows all of this in real time — every tool call, every decision, every rule that fired, and why
+1. An **external agent** (OpenClaw, Hermes, or anything with HTTP) calls `POST /api/sessions/:id/evaluate` before each tool execution
+2. The **Policy Engine** runs 6 rules, computes a composite risk score (0–100), and returns ALLOW / BLOCK / REQUIRE_APPROVAL
+3. If REQUIRE_APPROVAL, the agent polls for human decision; the **Dashboard** surfaces the approval request in real time
+4. The **Dashboard** shows every tool call, every decision, every rule that fired, and why — as it happens
+
+### Integration Modes
+
+| Mode | How It Works |
+|------|-------------|
+| **OpenClaw Plugin** | `npm install palisade-openclaw` — zero config, intercepts every tool call automatically |
+| **HTTP API** | Any agent calls the REST endpoints directly before executing tools |
+| **Built-in Demo** | Scripted scenarios + a built-in Claude agent for testing without an external agent |
 
 ## Policy Engine
 
 The engine evaluates each tool call against 6 rules:
 
-| Rule | What It Catches | Example |
-|------|----------------|---------|
-| **Destructive Action** | `rm -rf`, `DROP TABLE`, `delete` | Agent tries to wipe a directory |
-| **Bulk Operation** | Mass deletions, `SELECT *` on large tables | Agent tries to trash 500 emails at once |
-| **Sensitive Data** | PII, medical records, financial data, credentials | Agent reads a file with SSNs or diagnosis info |
-| **External System** | Emails, Slack messages, webhooks, external URLs | Agent tries to send data to an outside service |
-| **Approval Tracking** | Whether a human recently approved similar actions | Adjusts risk if user has been actively approving |
-| **Stop Command** | User issued a stop | Blocks everything immediately |
+| Rule | Risk | What It Catches |
+|------|------|----------------|
+| **Destructive Action** | 40 | `rm -rf`, `DROP TABLE`, `delete`, dangerous shell patterns |
+| **Bulk Operation** | 25 | Mass deletions, `SELECT *`, large ID lists, batch tools |
+| **Sensitive Data** | 30 | PII (SSN, credit cards), medical records, financial data, credentials |
+| **External System** | 15–30 | Emails, Slack, webhooks, uploads, external URLs |
+| **Approval Tracking** | 0 | Modifier — flags when no approvals exist in session |
+| **Stop Command** | 100 | User issued a stop — blocks everything immediately |
 
-Each rule contributes a risk score. The scores are combined and the decision is made:
+Scores are additive (capped at 100). Decision logic:
 
 - **Score < 30** → Allow
 - **Score 30–59** → Require human approval
 - **Score ≥ 60** → Block
 - **Sensitive data + external system** → Block (exfiltration pattern)
 - **Destructive + bulk** → Block
+
+The engine also has **session memory** — if the agent reads a sensitive file earlier in the session, Palisade remembers and blocks subsequent attempts to send that data externally.
+
+## External Agent Integration
+
+### OpenClaw (zero-config plugin)
+
+```bash
+npm install palisade-openclaw
+```
+
+```json
+// openclaw.json
+{ "plugins": ["palisade-openclaw"] }
+```
+
+```bash
+# Start Palisade, then run OpenClaw
+PALISADE_URL=http://localhost:8787 openclaw run
+```
+
+The plugin registers a `before_tool_call` hook that evaluates every tool call against Palisade. ALLOW passes through, BLOCK stops the agent, REQUIRE_APPROVAL polls the dashboard for human input.
+
+### Universal HTTP API
+
+For any agent that can make HTTP calls:
+
+```bash
+# 1. Create a session
+curl -X POST localhost:8787/api/sessions \
+  -H "Content-Type: application/json" \
+  -d '{"source": "my-agent"}'
+
+# 2. Before each tool call, evaluate
+curl -X POST localhost:8787/api/sessions/SESSION_ID/evaluate \
+  -H "Content-Type: application/json" \
+  -d '{"toolName":"send_email","toolArgs":{"to":"x@y.com"},"agentReasoning":"sending","stepIndex":0}'
+
+# 3. If REQUIRE_APPROVAL, poll for human decision
+curl localhost:8787/api/sessions/SESSION_ID/approval-status/TOOL_CALL_ID
+
+# 4. Report tool result for audit trail
+curl -X POST localhost:8787/api/sessions/SESSION_ID/tool-result \
+  -d '{"toolCallId":"TOOL_CALL_ID","result":"done"}'
+
+# 5. Mark session complete
+curl -X POST localhost:8787/api/sessions/SESSION_ID/agent-done
+```
 
 ## Demo Scenarios
 
@@ -60,24 +130,27 @@ There's also a **free-form agent mode** where you give Claude any prompt and wat
 
 - **Frontend:** React 19, TypeScript, Vite
 - **Backend / Policy Engine:** Cloudflare Workers, Hono, D1 (SQLite), Durable Objects (WebSocket)
-- **Agent Server:** Node.js, Express, Anthropic SDK (Claude)
+- **Agent Server:** Node.js, Express, Anthropic SDK (Claude) — for built-in demo mode
+- **OpenClaw Plugin:** TypeScript, zero runtime dependencies
+- **Marketing Site:** Next.js 16, Tailwind, Framer Motion (deployed on Vercel)
 
 ## Project Structure
 
 ```
 palisade/
-├── frontend/          # React UI — agent chat, tool call timeline, decision detail panel
-├── worker/            # Cloudflare Worker — API, policy engine, scenarios, database
+├── frontend/                  # React dashboard — live tool stream, risk breakdowns, approvals
+├── worker/                    # Cloudflare Worker — API, policy engine, scenarios, database
 │   └── src/
-│       ├── policy/    # Rule definitions and evaluation engine
-│       ├── scenarios/ # 4 scripted demo scenarios
-│       ├── db/        # Schema and seed data
-│       └── durable-objects/  # WebSocket streaming
-├── agent-server/      # Node.js server that runs the Claude agent loop
-│   └── src/
-│       ├── agent/     # Agent runner, system prompt, tool definitions
-│       └── tools/     # Tool executors (filesystem, shell, email)
-└── package.json       # Monorepo root (npm workspaces)
+│       ├── policy/            # Rule definitions and evaluation engine
+│       ├── scenarios/         # 4 scripted demo scenarios
+│       ├── session/           # Session CRUD, stop detection
+│       ├── db/                # Schema and seed data
+│       └── durable-objects/   # WebSocket streaming
+├── packages/
+│   └── openclaw-plugin/       # OpenClaw plugin — HTTP client, approval polling, hook registration
+├── agent-server/              # Built-in Claude agent (demo mode)
+├── website/                   # Marketing site (Next.js, deployed on Vercel)
+└── package.json               # Monorepo root (npm workspaces)
 ```
 
 ## Getting Started
@@ -86,8 +159,8 @@ palisade/
 
 - Node.js 18+
 - npm
-- A Cloudflare account (for Workers/D1)
-- An Anthropic API key (for agent mode)
+- A Cloudflare account (for Workers/D1) — or use `wrangler dev` locally
+- An Anthropic API key (only for built-in agent mode)
 
 ### Setup
 
@@ -95,25 +168,36 @@ palisade/
 # Install dependencies
 npm install
 
-# Set up environment variables
-# In agent-server/, create a .env file:
+# Set up environment variables (only needed for built-in agent mode)
 echo "ANTHROPIC_API_KEY=your-key-here" > agent-server/.env
 
-# Run all three services
+# Run all services
 npm run dev
 
-# Or run without the agent server (scripted scenarios only)
+# Or run without the agent server (external agents + scripted scenarios only)
 npm run dev:no-agent
 ```
 
 The frontend runs on `http://localhost:5173`, the worker on `http://localhost:8787`, and the agent server on `http://localhost:3001`.
 
-## Future Plans
+### Testing with curl (no external agent needed)
 
-- **Chain-of-action analysis** — Instead of evaluating each tool call in isolation, track sequences of actions to catch multi-step attack patterns (e.g., read sensitive data → send it externally)
-- **Policy configuration UI** — Let users adjust risk thresholds and toggle rules from the frontend
-- **Session replay** — Review everything an agent did after the fact with a full audit trail export
-- **Benchmarking** — Test the guardrail system against real-world examples of agents going wrong to measure how well it catches what matters
+```bash
+# Create an external session
+curl -X POST localhost:8787/api/sessions -H "Content-Type: application/json" -d '{"source":"test"}'
+
+# Evaluate a safe read
+curl -X POST localhost:8787/api/sessions/SESSION_ID/evaluate \
+  -H "Content-Type: application/json" \
+  -d '{"toolName":"read_file","toolArgs":{"path":"readme.txt"},"agentReasoning":"reading","stepIndex":0}'
+# → ALLOW, risk: 0
+
+# Evaluate a destructive command
+curl -X POST localhost:8787/api/sessions/SESSION_ID/evaluate \
+  -H "Content-Type: application/json" \
+  -d '{"toolName":"shell.exec","toolArgs":{"command":"rm -rf /"},"agentReasoning":"cleanup","stepIndex":1}'
+# → BLOCK, risk: 40+
+```
 
 ## Course
 
