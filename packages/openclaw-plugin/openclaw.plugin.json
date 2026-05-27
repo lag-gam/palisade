@@ -1,0 +1,34 @@
+{
+  "id": "palisade",
+  "name": "Palisade",
+  "description": "Runtime guardrails for AI agents — risk-scored policy evaluation, exfiltration detection, and a real-time audit dashboard.",
+  "version": "0.1.0",
+  "activation": {
+    "onStartup": true
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "url": {
+        "type": "string",
+        "description": "Palisade worker URL",
+        "default": "http://localhost:8787"
+      },
+      "source": {
+        "type": "string",
+        "description": "Agent source identifier shown in dashboard",
+        "default": "openclaw"
+      },
+      "apiKey": {
+        "type": "string",
+        "description": "Optional API key for authentication"
+      },
+      "timeoutMs": {
+        "type": "number",
+        "description": "Approval poll timeout in milliseconds",
+        "default": 300000
+      }
+    }
+  }
+}
