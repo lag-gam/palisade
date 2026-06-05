@@ -98,7 +98,7 @@ export class PalisadeClient {
    */
   async sendAgentMessage(
     sessionId: string,
-    role: 'agent' | 'system',
+    role: 'agent' | 'user' | 'system',
     content: string,
   ): Promise<void> {
     const res = await fetch(`${this.baseUrl}/api/sessions/${sessionId}/agent-message`, {
@@ -109,6 +109,48 @@ export class PalisadeClient {
 
     if (!res.ok) {
       throw new Error(`Palisade: failed to send agent message (${res.status})`);
+    }
+  }
+
+  /**
+   * Fetch the full session state (needed for polling completion and extracting replies).
+   */
+  async getSession(sessionId: string): Promise<Session> {
+    const res = await fetch(`${this.baseUrl}/api/sessions/${sessionId}`, {
+      headers: this.headers(),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Palisade: failed to get session (${res.status}): ${await res.text()}`);
+    }
+
+    return res.json() as Promise<Session>;
+  }
+
+  /**
+   * Fire-and-forget trigger for the agent-server's /run endpoint.
+   * The agent-server will run its own Claude loop with policy enforcement.
+   */
+  async triggerAgentRun(
+    agentServerUrl: string,
+    sessionId: string,
+    prompt: string,
+    demoMode?: boolean,
+  ): Promise<void> {
+    const url = agentServerUrl.replace(/\/+$/, '');
+    const res = await fetch(`${url}/run`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId,
+        prompt,
+        workerUrl: this.baseUrl,
+        demoMode: demoMode ?? false,
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Palisade: failed to trigger agent run (${res.status}): ${await res.text()}`);
     }
   }
 

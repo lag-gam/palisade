@@ -88,10 +88,12 @@ export function Hero() {
           className="mt-9 flex items-center justify-center gap-3"
         >
           <a
-            href="#waitlist"
+            href="https://github.com/lag-gam/palisade"
+            target="_blank"
+            rel="noopener noreferrer"
             className="rounded-full bg-[#0a0a0a] px-6 py-2.5 text-[14px] font-medium text-white transition-all hover:opacity-80 hover:scale-[1.03] active:scale-[0.97]"
           >
-            Get Early Access
+            View on GitHub
           </a>
           <a
             href="#docs"

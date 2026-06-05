@@ -62,7 +62,7 @@ export const TOOL_DEFINITIONS: Anthropic.Tool[] = [
     },
   },
   {
-    name: 'shell.exec',
+    name: 'shell_exec',
     description: 'Execute a shell command in the sandbox directory. Commands run with the sandbox as the working directory. Has a 10-second timeout.',
     input_schema: {
       type: 'object' as const,

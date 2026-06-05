@@ -1,4 +1,4 @@
-import type { Decision } from '../types';
+import type { Decision } from '../../types';
 
 interface RiskBadgeProps {
   riskScore: number;
@@ -8,9 +8,9 @@ interface RiskBadgeProps {
 
 export function RiskBadge({ riskScore, decision, size = 'md' }: RiskBadgeProps) {
   const colorMap: Record<Decision, string> = {
-    ALLOW: '#22c55e',
-    BLOCK: '#ef4444',
-    REQUIRE_APPROVAL: '#f59e0b',
+    ALLOW: 'var(--decision-allow)',
+    BLOCK: 'var(--decision-block)',
+    REQUIRE_APPROVAL: 'var(--decision-review)',
   };
 
   const bgMap: Record<Decision, string> = {
@@ -40,7 +40,7 @@ export function RiskBadge({ riskScore, decision, size = 'md' }: RiskBadgeProps) 
         border: `1px solid ${color}`,
         borderRadius: '9999px',
         fontWeight: 600,
-        fontFamily: 'monospace',
+        fontFamily: 'var(--font-mono)',
         ...sizing,
       }}
     >

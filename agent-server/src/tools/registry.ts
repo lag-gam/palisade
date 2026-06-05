@@ -9,7 +9,7 @@ const EXECUTORS: Record<string, ToolExecutor> = {
   read_file: (args) => readFile(args as { path: string }),
   write_file: (args) => writeFile(args as { path: string; content: string }),
   delete_file: (args) => deleteFile(args as { path: string }),
-  'shell.exec': (args) => shellExec(args as { command: string }),
+  shell_exec: (args) => shellExec(args as { command: string }),
   send_email: (args) => sendEmail(args as { to: string; subject: string; body: string; attachment?: string }),
 };
 

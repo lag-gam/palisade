@@ -65,8 +65,8 @@ export const TOOL_DEFINITIONS: Record<string, ToolDefinition> = {
       attachment: { type: 'string', description: 'Optional attachment filename' },
     },
   },
-  'shell.exec': {
-    name: 'shell.exec',
+  'shell_exec': {
+    name: 'shell_exec',
     description: 'Execute a shell command',
     category: 'execute',
     parameters: {

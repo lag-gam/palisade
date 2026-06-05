@@ -17,12 +17,21 @@ export interface PolicyResult {
   toolCallId: string;
 }
 
+export interface ChatMessage {
+  role: 'agent' | 'user' | 'system';
+  content: string;
+  timestamp: string;
+  toolCallId?: string;
+}
+
 export interface Session {
   id: string;
   scenarioId: string;
   status: 'active' | 'paused' | 'completed';
   currentStep: number;
+  chatMessages: ChatMessage[];
   createdAt: string;
+  updatedAt: string;
 }
 
 export type ApprovalStatus = 'pending' | 'approved' | 'denied';

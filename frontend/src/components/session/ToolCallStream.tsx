@@ -1,5 +1,5 @@
-import type { ToolCall } from '../types';
-import { RiskBadge } from './RiskBadge';
+import type { ToolCall } from '../../types';
+import { RiskBadge } from '../shared/RiskBadge';
 
 interface ToolCallStreamProps {
   toolCalls: ToolCall[];
@@ -8,13 +8,13 @@ interface ToolCallStreamProps {
 }
 
 export function ToolCallStream({ toolCalls, selectedId, onSelect }: ToolCallStreamProps) {
-  const decisionColor = {
-    ALLOW: '#22c55e',
-    BLOCK: '#ef4444',
-    REQUIRE_APPROVAL: '#f59e0b',
+  const decisionColor: Record<string, string> = {
+    ALLOW: 'var(--decision-allow)',
+    BLOCK: 'var(--decision-block)',
+    REQUIRE_APPROVAL: 'var(--decision-review)',
   };
 
-  const decisionIcon = {
+  const decisionIcon: Record<string, string> = {
     ALLOW: '\u2713',
     BLOCK: '\u2717',
     REQUIRE_APPROVAL: '?',
@@ -24,10 +24,10 @@ export function ToolCallStream({ toolCalls, selectedId, onSelect }: ToolCallStre
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{
         padding: '12px 16px',
-        borderBottom: '1px solid #374151',
+        borderBottom: '1px solid var(--border-primary)',
       }}>
-        <h3 style={{ margin: 0, fontSize: '14px', color: '#e5e7eb' }}>Tool Call Stream</h3>
-        <span style={{ fontSize: '11px', color: '#6b7280' }}>
+        <h3 style={{ margin: 0, fontSize: '14px', color: 'var(--text-primary)' }}>Tool Call Stream</h3>
+        <span style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>
           {toolCalls.length} tool call{toolCalls.length !== 1 ? 's' : ''}
         </span>
       </div>
@@ -41,7 +41,7 @@ export function ToolCallStream({ toolCalls, selectedId, onSelect }: ToolCallStre
         gap: '6px',
       }}>
         {toolCalls.length === 0 && (
-          <div style={{ color: '#6b7280', textAlign: 'center', marginTop: '40px', fontSize: '13px' }}>
+          <div style={{ color: 'var(--text-tertiary)', textAlign: 'center', marginTop: '40px', fontSize: '13px' }}>
             Tool calls will appear here as the agent executes.
           </div>
         )}
@@ -57,9 +57,9 @@ export function ToolCallStream({ toolCalls, selectedId, onSelect }: ToolCallStre
               onClick={() => onSelect(tc)}
               style={{
                 padding: '10px 12px',
-                borderRadius: '8px',
-                border: isSelected ? `2px solid ${color}` : '1px solid #374151',
-                background: isSelected ? 'rgba(255,255,255,0.03)' : '#111827',
+                borderRadius: '10px',
+                border: isSelected ? `2px solid ${color}` : '1px solid var(--border-primary)',
+                background: isSelected ? 'rgba(255,255,255,0.03)' : 'var(--bg-elevated)',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
               }}
@@ -81,14 +81,14 @@ export function ToolCallStream({ toolCalls, selectedId, onSelect }: ToolCallStre
                   }}>
                     {icon}
                   </span>
-                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#e5e7eb', fontFamily: 'monospace' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
                     {tc.toolName}
                   </span>
                 </div>
                 <RiskBadge riskScore={tc.riskScore} decision={tc.decision} size="sm" />
               </div>
 
-              <div style={{ fontSize: '11px', color: '#9ca3af', marginLeft: '30px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginLeft: '30px' }}>
                 {truncateArgs(tc.toolArgs)}
               </div>
             </div>

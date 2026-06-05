@@ -2,7 +2,7 @@
   "id": "palisade",
   "name": "Palisade",
   "description": "Runtime guardrails for AI agents — risk-scored policy evaluation, exfiltration detection, and a real-time audit dashboard.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "activation": {
     "onStartup": true
   },
@@ -15,6 +15,11 @@
         "description": "Palisade worker URL",
         "default": "http://localhost:8787"
       },
+      "agentServerUrl": {
+        "type": "string",
+        "description": "Palisade agent-server URL for proxied agent runs",
+        "default": "http://localhost:3001"
+      },
       "source": {
         "type": "string",
         "description": "Agent source identifier shown in dashboard",
@@ -26,7 +31,7 @@
       },
       "timeoutMs": {
         "type": "number",
-        "description": "Approval poll timeout in milliseconds",
+        "description": "Session/approval poll timeout in milliseconds",
         "default": 300000
       }
     }

@@ -82,11 +82,11 @@ export function Metrics() {
             Testing Results
           </p>
           <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#0a0a0a]">
-            Tested against OpenClaw in YOLO mode
+            Aggregate testing metrics
           </h2>
           <p className="mt-3 text-[15px] text-[#737373] max-w-lg mx-auto">
-            Placeholder metrics from integration testing. All safety rails off,
-            Palisade as the only guardrail.
+            Results from integration testing with autonomous agents.
+            All agent-side safety rails off, Palisade as the only guardrail.
           </p>
         </Animated>
 

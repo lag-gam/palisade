@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import type { ChatMessage, SessionStatus } from '../types';
+import { StatusDot } from '../shared/StatusDot';
+import type { ChatMessage, SessionStatus } from '../../types';
 
 interface AgentChatProps {
   messages: ChatMessage[];
@@ -14,7 +15,6 @@ interface AgentChatProps {
   onStep: () => void;
   onSendMessage: (message: string) => void;
   onToggleAutoPlay: () => void;
-  onStartAgent: (prompt: string) => void;
 }
 
 export function AgentChat({
@@ -30,10 +30,8 @@ export function AgentChat({
   onStep,
   onSendMessage,
   onToggleAutoPlay,
-  onStartAgent,
 }: AgentChatProps) {
   const [input, setInput] = useState('');
-  const [promptInput, setPromptInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,12 +42,6 @@ export function AgentChat({
     if (!input.trim()) return;
     onSendMessage(input.trim());
     setInput('');
-  };
-
-  const handleStartAgent = () => {
-    if (!promptInput.trim()) return;
-    onStartAgent(promptInput.trim());
-    setPromptInput('');
   };
 
   const roleStyles: Record<string, { color: string; label: string; bg: string }> = {
@@ -63,22 +55,15 @@ export function AgentChat({
       {/* Header */}
       <div style={{
         padding: '12px 16px',
-        borderBottom: '1px solid #374151',
+        borderBottom: '1px solid var(--border-primary)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
       }}>
-        <h3 style={{ margin: 0, fontSize: '14px', color: '#e5e7eb' }}>Agent Activity</h3>
+        <h3 style={{ margin: 0, fontSize: '14px', color: 'var(--text-primary)' }}>Agent Activity</h3>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {agentRunning && (
-            <span style={{
-              display: 'inline-block',
-              width: '6px',
-              height: '6px',
-              borderRadius: '50%',
-              background: '#3b82f6',
-              animation: 'pulse 1.5s ease-in-out infinite',
-            }} />
+            <StatusDot color="var(--accent-blue)" pulse />
           )}
           {sessionStatus && (
             <span style={{
@@ -88,7 +73,7 @@ export function AgentChat({
               background: sessionStatus === 'paused' ? 'rgba(245, 158, 11, 0.2)' :
                 sessionStatus === 'completed' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(59, 130, 246, 0.2)',
               color: sessionStatus === 'paused' ? '#fbbf24' :
-                sessionStatus === 'completed' ? '#22c55e' : '#93c5fd',
+                sessionStatus === 'completed' ? 'var(--decision-allow)' : '#93c5fd',
             }}>
               {isExternalMode && agentRunning ? 'EXTERNAL AGENT' : isAgentMode && agentRunning ? 'AGENT RUNNING' : sessionStatus.toUpperCase()}
             </span>
@@ -112,14 +97,14 @@ export function AgentChat({
             padding: '2px 6px',
             borderRadius: '3px',
             background: 'rgba(34, 197, 94, 0.2)',
-            color: '#22c55e',
+            color: 'var(--decision-allow)',
             fontSize: '10px',
             fontWeight: 700,
             textTransform: 'uppercase',
           }}>
             {externalSource || 'external'}
           </span>
-          Connected to external agent — tool calls stream here in real-time
+          Connected to external agent -- tool calls stream here in real-time
         </div>
       )}
 
@@ -133,17 +118,17 @@ export function AgentChat({
         gap: '8px',
       }}>
         {messages.length === 0 && !sessionStatus && (
-          <div style={{ color: '#6b7280', textAlign: 'center', marginTop: '40px', fontSize: '13px' }}>
-            Type a prompt below or select a scripted scenario to begin.
+          <div style={{ color: 'var(--text-tertiary)', textAlign: 'center', marginTop: '40px', fontSize: '13px' }}>
+            Session loading...
           </div>
         )}
         {messages.length === 0 && sessionStatus && isExternalMode && (
-          <div style={{ color: '#6b7280', textAlign: 'center', marginTop: '40px', fontSize: '13px' }}>
+          <div style={{ color: 'var(--text-tertiary)', textAlign: 'center', marginTop: '40px', fontSize: '13px' }}>
             Waiting for tool calls from external agent...
           </div>
         )}
         {messages.length === 0 && sessionStatus && !isAgentMode && !isExternalMode && (
-          <div style={{ color: '#6b7280', textAlign: 'center', marginTop: '40px', fontSize: '13px' }}>
+          <div style={{ color: 'var(--text-tertiary)', textAlign: 'center', marginTop: '40px', fontSize: '13px' }}>
             Click "Next Step" to begin the scenario.
           </div>
         )}
@@ -165,7 +150,7 @@ export function AgentChat({
               </div>
               <div style={{
                 fontSize: '13px',
-                color: '#d1d5db',
+                color: 'var(--text-primary)',
                 lineHeight: '1.5',
                 whiteSpace: 'pre-wrap',
                 wordBreak: 'break-word',
@@ -181,7 +166,7 @@ export function AgentChat({
       {/* Controls */}
       <div style={{
         padding: '12px',
-        borderTop: '1px solid #374151',
+        borderTop: '1px solid var(--border-primary)',
         display: 'flex',
         flexDirection: 'column',
         gap: '8px',
@@ -197,10 +182,10 @@ export function AgentChat({
               style={{
                 flex: 1,
                 padding: '8px 12px',
-                borderRadius: '6px',
-                border: '1px solid #374151',
-                background: '#111827',
-                color: '#e5e7eb',
+                borderRadius: '10px',
+                border: '1px solid var(--border-primary)',
+                background: 'var(--bg-elevated)',
+                color: 'var(--text-primary)',
                 fontSize: '13px',
                 outline: 'none',
               }}
@@ -210,9 +195,9 @@ export function AgentChat({
               disabled={!input.trim()}
               style={{
                 padding: '8px 12px',
-                borderRadius: '6px',
+                borderRadius: '10px',
                 border: 'none',
-                background: '#4b5563',
+                background: 'var(--border-hover)',
                 color: 'white',
                 cursor: !input.trim() ? 'not-allowed' : 'pointer',
                 fontSize: '13px',
@@ -220,46 +205,6 @@ export function AgentChat({
               }}
             >
               Send
-            </button>
-          </div>
-        )}
-
-        {/* Agent mode: prompt input when no session or session completed */}
-        {!isExternalMode && (!sessionStatus || (isAgentMode && scenarioComplete)) && (
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <input
-              value={promptInput}
-              onChange={e => setPromptInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleStartAgent()}
-              placeholder="Tell the agent what to do..."
-              style={{
-                flex: 1,
-                padding: '10px 12px',
-                borderRadius: '6px',
-                border: '1px solid #374151',
-                background: '#111827',
-                color: '#e5e7eb',
-                fontSize: '13px',
-                outline: 'none',
-              }}
-            />
-            <button
-              onClick={handleStartAgent}
-              disabled={!promptInput.trim()}
-              style={{
-                padding: '10px 16px',
-                borderRadius: '6px',
-                border: 'none',
-                background: promptInput.trim() ? '#3b82f6' : '#374151',
-                color: 'white',
-                cursor: !promptInput.trim() ? 'not-allowed' : 'pointer',
-                fontSize: '13px',
-                fontWeight: 600,
-                opacity: promptInput.trim() ? 1 : 0.5,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              Run Agent
             </button>
           </div>
         )}
@@ -275,10 +220,10 @@ export function AgentChat({
               style={{
                 flex: 1,
                 padding: '8px 12px',
-                borderRadius: '6px',
-                border: '1px solid #374151',
-                background: '#111827',
-                color: '#e5e7eb',
+                borderRadius: '10px',
+                border: '1px solid var(--border-primary)',
+                background: 'var(--bg-elevated)',
+                color: 'var(--text-primary)',
                 fontSize: '13px',
                 outline: 'none',
               }}
@@ -288,9 +233,9 @@ export function AgentChat({
               disabled={!input.trim()}
               style={{
                 padding: '8px 12px',
-                borderRadius: '6px',
+                borderRadius: '10px',
                 border: 'none',
-                background: '#4b5563',
+                background: 'var(--border-hover)',
                 color: 'white',
                 cursor: !input.trim() ? 'not-allowed' : 'pointer',
                 fontSize: '13px',
@@ -303,7 +248,7 @@ export function AgentChat({
         )}
 
         {/* Scripted mode: step controls */}
-        {!isAgentMode && sessionStatus && (
+        {!isAgentMode && !isExternalMode && sessionStatus && (
           <>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button
@@ -312,9 +257,9 @@ export function AgentChat({
                 style={{
                   flex: 1,
                   padding: '8px 16px',
-                  borderRadius: '6px',
+                  borderRadius: '10px',
                   border: 'none',
-                  background: stepping ? '#374151' : '#3b82f6',
+                  background: stepping ? 'var(--border-primary)' : 'var(--accent-blue)',
                   color: 'white',
                   cursor: stepping || scenarioComplete ? 'not-allowed' : 'pointer',
                   fontSize: '13px',
@@ -329,10 +274,10 @@ export function AgentChat({
                 disabled={scenarioComplete}
                 style={{
                   padding: '8px 12px',
-                  borderRadius: '6px',
-                  border: autoPlay ? '1px solid #f59e0b' : '1px solid #374151',
-                  background: autoPlay ? 'rgba(245, 158, 11, 0.15)' : '#1f2937',
-                  color: autoPlay ? '#fbbf24' : '#9ca3af',
+                  borderRadius: '10px',
+                  border: autoPlay ? '1px solid var(--decision-review)' : '1px solid var(--border-primary)',
+                  background: autoPlay ? 'rgba(245, 158, 11, 0.15)' : 'var(--bg-surface)',
+                  color: autoPlay ? '#fbbf24' : 'var(--text-secondary)',
                   cursor: scenarioComplete ? 'not-allowed' : 'pointer',
                   fontSize: '12px',
                   opacity: scenarioComplete ? 0.5 : 1,
@@ -352,10 +297,10 @@ export function AgentChat({
                 style={{
                   flex: 1,
                   padding: '8px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid #374151',
-                  background: '#111827',
-                  color: '#e5e7eb',
+                  borderRadius: '10px',
+                  border: '1px solid var(--border-primary)',
+                  background: 'var(--bg-elevated)',
+                  color: 'var(--text-primary)',
                   fontSize: '13px',
                   outline: 'none',
                 }}
@@ -365,9 +310,9 @@ export function AgentChat({
                 disabled={!input.trim()}
                 style={{
                   padding: '8px 12px',
-                  borderRadius: '6px',
+                  borderRadius: '10px',
                   border: 'none',
-                  background: '#4b5563',
+                  background: 'var(--border-hover)',
                   color: 'white',
                   cursor: !input.trim() ? 'not-allowed' : 'pointer',
                   fontSize: '13px',

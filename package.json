@@ -1,7 +1,7 @@
 {
   "name": "palisade",
   "private": true,
-  "workspaces": ["frontend", "worker", "agent-server", "packages/openclaw-plugin"],
+  "workspaces": ["frontend", "worker", "agent-server", "packages/openclaw-plugin", "packages/palisade-mcp"],
   "scripts": {
     "dev": "concurrently \"npm run dev -w worker\" \"npm run dev -w frontend\" \"npm run dev -w agent-server\"",
     "dev:no-agent": "concurrently \"npm run dev -w worker\" \"npm run dev -w frontend\"",

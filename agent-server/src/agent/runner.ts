@@ -1,9 +1,23 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { SYSTEM_PROMPT } from './system-prompt.js';
+import { DEMO_SYSTEM_PROMPT } from './demo-prompt.js';
 import { TOOL_DEFINITIONS } from './tool-definitions.js';
 import { executeToolLocally } from '../tools/registry.js';
+import { ensureSandbox } from '../sandbox/setup.js';
 
-const client = new Anthropic();
+let _client: Anthropic | null = null;
+
+function getClient(): Anthropic {
+  if (!_client) {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      throw new Error(
+        'ANTHROPIC_API_KEY is not set. Export it in your shell before starting the agent server.',
+      );
+    }
+    _client = new Anthropic();
+  }
+  return _client;
+}
 
 const MAX_ITERATIONS = 20;
 
@@ -11,6 +25,7 @@ interface RunConfig {
   sessionId: string;
   prompt: string;
   workerUrl: string;
+  demoMode?: boolean;
 }
 
 async function callWorker(url: string, body: Record<string, unknown>): Promise<any> {
@@ -41,7 +56,11 @@ async function waitForApproval(
 }
 
 export async function runAgent(config: RunConfig): Promise<void> {
-  const { sessionId, prompt, workerUrl } = config;
+  // Re-seed sandbox before each run so previous destructive agents don't break the next session
+  await ensureSandbox();
+
+  const { sessionId, prompt, workerUrl, demoMode } = config;
+  const systemPrompt = demoMode ? DEMO_SYSTEM_PROMPT : SYSTEM_PROMPT;
 
   const messages: Anthropic.MessageParam[] = [
     { role: 'user', content: prompt },
@@ -60,10 +79,10 @@ export async function runAgent(config: RunConfig): Promise<void> {
 
       // Call Claude
       console.log(`[Agent] Calling Claude (step ${stepIndex})...`);
-      const response = await client.messages.create({
+      const response = await getClient().messages.create({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4096,
-        system: SYSTEM_PROMPT,
+        system: systemPrompt,
         tools: TOOL_DEFINITIONS,
         messages,
       });

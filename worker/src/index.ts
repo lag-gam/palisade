@@ -88,6 +88,7 @@ app.post('/api/sessions', async (c) => {
           sessionId: session.id,
           prompt: body.prompt,
           workerUrl,
+          demoMode: true,
         }),
       }).catch(err => console.error('Agent server error:', err))
     );

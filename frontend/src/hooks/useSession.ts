@@ -1,5 +1,5 @@
-import { useState, useCallback, useRef } from 'react';
-import type { Session, ToolCall, ChatMessage, ScenarioSummary, ExternalSession, WSEvent } from '../types';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import type { Session, ToolCall, WSEvent } from '../types';
 import { useWebSocket } from './useWebSocket';
 
 const API = '/api';
@@ -7,20 +7,16 @@ const API = '/api';
 interface SessionState {
   session: Session | null;
   toolCalls: ToolCall[];
-  scenarios: ScenarioSummary[];
-  externalSessions: ExternalSession[];
   selectedToolCall: ToolCall | null;
   stepping: boolean;
   autoPlay: boolean;
   error: string | null;
 }
 
-export function useSession() {
+export function useSession(sessionId: string) {
   const [state, setState] = useState<SessionState>({
     session: null,
     toolCalls: [],
-    scenarios: [],
-    externalSessions: [],
     selectedToolCall: null,
     stepping: false,
     autoPlay: false,
@@ -29,6 +25,51 @@ export function useSession() {
 
   const autoPlayRef = useRef(false);
   const autoPlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Init: fetch session + history on mount
+  useEffect(() => {
+    if (!sessionId) return;
+
+    let cancelled = false;
+
+    async function init() {
+      try {
+        const [sessionRes, historyRes] = await Promise.all([
+          fetch(`${API}/sessions/${sessionId}`),
+          fetch(`${API}/sessions/${sessionId}/history`),
+        ]);
+
+        if (cancelled) return;
+
+        if (!sessionRes.ok) {
+          setState(prev => ({ ...prev, error: 'Session not found' }));
+          return;
+        }
+
+        const session = await sessionRes.json() as Session;
+        const toolCalls = historyRes.ok
+          ? await historyRes.json() as ToolCall[]
+          : [];
+
+        setState({
+          session,
+          toolCalls,
+          selectedToolCall: toolCalls.length > 0 ? toolCalls[toolCalls.length - 1] : null,
+          stepping: false,
+          autoPlay: false,
+          error: null,
+        });
+      } catch {
+        if (!cancelled) {
+          setState(prev => ({ ...prev, error: 'Failed to load session' }));
+        }
+      }
+    }
+
+    init();
+
+    return () => { cancelled = true; };
+  }, [sessionId]);
 
   const handleWSEvent = useCallback((event: WSEvent) => {
     switch (event.type) {
@@ -65,117 +106,7 @@ export function useSession() {
     }
   }, []);
 
-  useWebSocket(state.session?.id ?? null, handleWSEvent);
-
-  const fetchScenarios = useCallback(async () => {
-    try {
-      const res = await fetch(`${API}/scenarios`);
-      const data = await res.json() as ScenarioSummary[];
-      setState(prev => ({ ...prev, scenarios: data }));
-    } catch (err) {
-      setState(prev => ({ ...prev, error: 'Failed to fetch scenarios' }));
-    }
-  }, []);
-
-  const fetchExternalSessions = useCallback(async () => {
-    try {
-      const res = await fetch(`${API}/sessions?source=external`);
-      const data = await res.json() as ExternalSession[];
-      setState(prev => ({ ...prev, externalSessions: data }));
-    } catch {
-      // Non-critical — don't overwrite existing error
-    }
-  }, []);
-
-  const connectToExternalSession = useCallback(async (sessionId: string) => {
-    try {
-      autoPlayRef.current = false;
-      if (autoPlayTimerRef.current) {
-        clearTimeout(autoPlayTimerRef.current);
-        autoPlayTimerRef.current = null;
-      }
-
-      // Fetch the existing session
-      const sessionRes = await fetch(`${API}/sessions/${sessionId}`);
-      if (!sessionRes.ok) throw new Error('Session not found');
-      const session = await sessionRes.json() as Session;
-
-      // Fetch existing tool call history
-      const historyRes = await fetch(`${API}/sessions/${sessionId}/history`);
-      const toolCalls = historyRes.ok
-        ? await historyRes.json() as ToolCall[]
-        : [];
-
-      setState(prev => ({
-        ...prev,
-        session,
-        toolCalls,
-        selectedToolCall: toolCalls.length > 0 ? toolCalls[toolCalls.length - 1] : null,
-        stepping: false,
-        autoPlay: false,
-        error: null,
-      }));
-    } catch (err) {
-      setState(prev => ({ ...prev, error: 'Failed to connect to external session' }));
-    }
-  }, []);
-
-  const createSession = useCallback(async (scenarioId: string) => {
-    try {
-      // Stop any running auto-play
-      autoPlayRef.current = false;
-      if (autoPlayTimerRef.current) {
-        clearTimeout(autoPlayTimerRef.current);
-        autoPlayTimerRef.current = null;
-      }
-
-      const res = await fetch(`${API}/sessions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ scenarioId }),
-      });
-      const session = await res.json() as Session;
-      setState(prev => ({
-        ...prev,
-        session,
-        toolCalls: [],
-        selectedToolCall: null,
-        stepping: false,
-        autoPlay: false,
-        error: null,
-      }));
-    } catch (err) {
-      setState(prev => ({ ...prev, error: 'Failed to create session' }));
-    }
-  }, []);
-
-  const startAgent = useCallback(async (prompt: string) => {
-    try {
-      autoPlayRef.current = false;
-      if (autoPlayTimerRef.current) {
-        clearTimeout(autoPlayTimerRef.current);
-        autoPlayTimerRef.current = null;
-      }
-
-      const res = await fetch(`${API}/sessions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
-      });
-      const session = await res.json() as Session;
-      setState(prev => ({
-        ...prev,
-        session,
-        toolCalls: [],
-        selectedToolCall: null,
-        stepping: false,
-        autoPlay: false,
-        error: null,
-      }));
-    } catch (err) {
-      setState(prev => ({ ...prev, error: 'Failed to start agent' }));
-    }
-  }, []);
+  useWebSocket(sessionId, handleWSEvent);
 
   const step = useCallback(async () => {
     if (!state.session) return;
@@ -223,7 +154,7 @@ export function useSession() {
           }
         }, 1500);
       }
-    } catch (err) {
+    } catch {
       setState(prev => ({ ...prev, stepping: false, error: 'Step failed' }));
     }
   }, [state.session]);
@@ -232,18 +163,17 @@ export function useSession() {
     if (!state.session) return;
 
     try {
-      const res = await fetch(`${API}/sessions/${state.session.id}/user-message`, {
+      await fetch(`${API}/sessions/${state.session.id}/user-message`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message }),
       });
-      const data = await res.json() as { intent: string; status: string };
 
       // Refresh session
       const sessionRes = await fetch(`${API}/sessions/${state.session.id}`);
       const updatedSession = await sessionRes.json() as Session;
       setState(prev => ({ ...prev, session: updatedSession }));
-    } catch (err) {
+    } catch {
       setState(prev => ({ ...prev, error: 'Failed to send message' }));
     }
   }, [state.session]);
@@ -262,7 +192,7 @@ export function useSession() {
           tc.id === toolCallId ? { ...tc, decision: 'ALLOW' as const } : tc
         ),
       }));
-    } catch (err) {
+    } catch {
       setState(prev => ({ ...prev, error: 'Failed to approve' }));
     }
   }, [state.session]);
@@ -295,7 +225,6 @@ export function useSession() {
   const isExternalMode = state.session?.scenarioId?.startsWith('external:') ?? false;
   const agentRunning = (isAgentMode || isExternalMode) && state.session?.status === 'active';
 
-  // Extract the external source name from scenarioId (e.g., "external:openclaw" → "openclaw")
   const externalSource = isExternalMode
     ? state.session!.scenarioId.replace('external:', '')
     : null;
@@ -306,11 +235,6 @@ export function useSession() {
     isExternalMode,
     externalSource,
     agentRunning,
-    fetchScenarios,
-    fetchExternalSessions,
-    connectToExternalSession,
-    createSession,
-    startAgent,
     step,
     sendMessage,
     approve,

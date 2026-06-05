@@ -18,7 +18,7 @@ export async function executeTool(
       return await fakeReadFile(toolArgs, env);
     case 'query_database':
       return fakeQueryDatabase(toolArgs);
-    case 'shell.exec':
+    case 'shell_exec':
       return fakeShellExec(toolArgs);
     default:
       return `[Simulated] ${toolName} executed with args: ${JSON.stringify(toolArgs)}`;

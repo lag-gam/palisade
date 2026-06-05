@@ -4,3 +4,10 @@ dist/
 .env
 *.log
 .DS_Store
+
+# Dev/testing artifacts
+DEMO-PLAN.md
+DEMO-SCRIPT.md
+TEST-PLAN.md
+test-openclaw.sh
+scripts/test-policy-engine.sh
